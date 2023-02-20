@@ -1,60 +1,74 @@
-# Idea: A piece of software like Dragon Frame for making stop motion animations
-from tkinter import *
-import cv2
-from PIL import Image, ImageTk
-  
-# Define a video capture object
-vid = cv2.VideoCapture(0)
-  
-# Declare the width and height in variables
-width, height = 800, 600
-  
-# Set the width and height
-vid.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-vid.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-  
-# Create a GUI app
-app = Tk()
-  
-# Bind the app with Escape keyboard to
-# quit app whenever pressed
-app.bind('<Escape>', lambda e: app.quit())
-  
-# Create a label and display it on app
-label_widget = Label(app)
-label_widget.pack()
-  
-# Create a function to open camera and
-# display it in the label_widget on app
-  
-  
-def open_camera():
-  
-    # Capture the video frame by frame
-    _, frame = vid.read()
-  
-    # Convert image from one color space to other
-    opencv_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-  
-    # Capture the latest frame and transform to image
-    captured_image = Image.fromarray(opencv_image)
-  
-    # Convert captured image to photoimage
-    photo_image = ImageTk.PhotoImage(image=captured_image)
-  
-    # Displaying photoimage in the label
-    label_widget.photo_image = photo_image
-  
-    # Configure image in the label
-    label_widget.configure(image=photo_image)
-  
-    # Repeat the same process after every 10 seconds
-    label_widget.after(10, open_camera)
-  
-  
-# Create a button to open the camera in GUI app
-button1 = Button(app, text="Open Camera", command=open_camera)
-button1.pack()
-  
-# Create an infinite loop for displaying app on screen
-app.mainloop()
+import pygame, cv2
+
+class button:
+
+   def __init__(self, size, position, text="button", txt_colour = (0,0,0), colour = (255,255,255), hover_colour = (220, 220, 220), press_colour = (190, 190, 190)):
+      self.size = size
+      self.position = position
+      self.text = text
+      self.txt_colour = txt_colour
+      self.colour = colour
+      self.hover_colour = hover_colour
+      self.press_colour = press_colour
+   
+   def mouse_over(self, mouse_pos):
+      # check if the mouse is in the button area
+      if self.position[0] <= mouse_pos[0] <= self.position[0]+self.size[0] and self.position[1] <= mouse_pos[1] <= self.position[1]+self.size[1]:
+         return True
+      else:
+         return False
+   
+   def draw(self, mouse_pos, mouse_down, screen):
+
+      # get the right colour for the background
+      if self.mouse_over(mouse_pos):
+         if mouse_down:
+            bg = self.press_colour
+         else:
+            bg = self.hover_colour
+      else:
+         bg = self.colour
+
+      # create the text surface
+      font = pygame.font.Font(pygame.font.get_default_font(), 128)
+
+      size = font.size(self.text)
+
+      text = font.render(self.text, True, self.txt_colour)
+
+      if size[0]/self.size[0] > size[1]/self.size[1]:
+         text = pygame.transform.scale(text, self.size)
+      else:
+         text = pygame.transform.scale(text, self.size)
+      
+      # draw
+      rect = pygame.Rect(self.position[0], self.position[1],self.size[0],self.size[1])
+      pygame.draw.rect(screen, bg, rect)
+      screen.blit(text,self.position)
+
+
+      
+def main():
+   pygame.init()
+   pygame.font.init()
+   
+   size = (1280, 720)
+
+   screen = pygame.display.set_mode(size, pygame.RESIZABLE)
+
+   running = True
+
+   but = button( (100, 50), (50,50))
+   while running:
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+      
+      but.draw(pygame.mouse.get_pos(), False, screen)
+
+      pygame.display.flip()
+      
+
+
+if __name__ == "__main__":
+   main()
