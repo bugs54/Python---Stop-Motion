@@ -4,36 +4,6 @@ from PIL import Image, ImageTk
 import numpy as np
 
 """
-#Create an instance of tkinter frame
-win = tk.Tk()
-win.geometry("700x550")
-#Load the image
-img = cv2.imread('SpiderVerseBackground.png')
-
-vid = cv2.VideoCapture(0)
-
-ret, frame = vid.read()
-frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-
-im = Image.fromarray(frame)
-imgtk = ImageTk.PhotoImage(image=im)
-
-feed = tk.Label(win, image= imgtk)
-feed.pack()
-
-while True:
-    ret, frame = vid.read()
-    frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-
-    im = Image.fromarray(frame)
-    imgtk = ImageTk.PhotoImage(image=im)
-
-    #Create a Label to display the image
-    feed.configure(image= imgtk)
-    win.update()
-"""
-
-"""
 I want to use multiple windows for the differant functions of the program.
 
 In dev order...
@@ -44,11 +14,21 @@ In dev order...
 5. File Management
 """
 
+"""
+This is the live feed class.
+It's used to display what needs to be in the live feed window.
+
+ - I need to add onion skin function to it.
+"""
 class LiveFeed:
     def __init__(self, size):
         self.size = size
         self.cam = 0
         self.vid = cv2.VideoCapture(self.cam)
+        self.win = tk.Tk()
+        self.win.geometry(str(self.size[0]) + "x" + str(self.size[1]))
+        self.label = tk.Label(self.win)
+        self.label.pack()
     
     def nextFrame(self):
         captured, frame = self.vid.read()
@@ -79,7 +59,7 @@ class LiveFeed:
         # return the cropped image
         return cropped
     
-    def showFrame(self):
+    def shownFrame(self):
         # get the frame
         frame = self.nextFrame()
         dim = frame.shape
@@ -97,26 +77,32 @@ class LiveFeed:
 
         return cv2.resize(cropped, self.size)
     
+    def updateWin(self):
+        frame = self.shownFrame()
+        
+        im = Image.fromarray(frame)
+        imgtk = ImageTk.PhotoImage(image=im)
+
+        #Create a Label to display the image
+        self.label.configure(image= imgtk)
+        self.win.update()
+
+    def playBack(self, frames, fps, sinceStart):
+        frame = int(fps/sinceStart)
+
+        if frame >= len(frames):
+            return False
+        im = Image.fromarray(frames[frame])
+        imgtk = ImageTk.PhotoImage(image=im)
+
+        #Create a Label to display the image
+        self.label.configure(image= imgtk)
+        self.win.update()
+
+        return True
+    
 live = LiveFeed((1280,720))
 
-#Create an instance of tkinter frame
-win = tk.Tk()
-win.geometry("1280x720")
-
-frame = live.showFrame()
-
-im = Image.fromarray(frame)
-imgtk = ImageTk.PhotoImage(image=im)
-
-feed = tk.Label(win, image= imgtk)
-feed.pack()
-
+print(time.time())
 while True:
-    frame = live.showFrame()
-
-    im = Image.fromarray(frame)
-    imgtk = ImageTk.PhotoImage(image=im)
-
-    #Create a Label to display the image
-    feed.configure(image= imgtk)
-    win.update()
+    live.updateWin()
