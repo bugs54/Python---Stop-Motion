@@ -104,6 +104,5 @@ class LiveFeed:
 if __name__ == "__main__":
     live = LiveFeed((1280,720))
 
-    print(time.time())
     while True:
         live.updateWin()
