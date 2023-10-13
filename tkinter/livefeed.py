@@ -69,6 +69,7 @@ class LiveFeed:
             ratio = self.size[0]/dim[1]
         else:
             ratio = self.size[1]/dim[0]
+            
         # find the height and width of the corrected ratio
         width = self.size[0]/ratio
         height = self.size[1]/ratio 
